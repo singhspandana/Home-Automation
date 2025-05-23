@@ -1,0 +1,72 @@
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to enable it
+#endif
+
+BluetoothSerial SerialBT;
+char receivedChar;
+const char turnON_1 = 'a';
+const char turnOFF_1 = 'b';
+const char turnON_2 = 'c';
+const char turnOFF_2 = 'd';
+const char allON = 'e'; 
+const char allOFF = 'f'; 
+const int LEDpin_1 = 23;
+const int LEDpin_2 = 22;
+
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32_led"); 
+  Serial.println("The device started, now you can pair it with Bluetooth!");
+  Serial.println("To turn ON LED 1, send: a"); 
+  Serial.println("To turn OFF LED 1, send: b"); 
+  Serial.println("To turn ON LED 2, send: c"); 
+  Serial.println("To turn OFF LED 2, send: d"); 
+  Serial.println("To turn ALL LEDs ON, send: e"); 
+  Serial.println("To turn ALL LEDs OFF, send: f"); 
+  pinMode(LEDpin_1, OUTPUT);
+  pinMode(LEDpin_2, OUTPUT);
+  digitalWrite(LEDpin_1, LOW);
+  digitalWrite(LEDpin_2, LOW);
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    receivedChar = SerialBT.read();
+    processCommand(receivedChar);
+  }
+}
+
+void processCommand(char command) {
+  if (command == turnON_1) {
+    SerialBT.println("LED 1 ON"); 
+    Serial.println("LED 1 ON"); 
+    digitalWrite(LEDpin_1, HIGH); 
+  } else if (command == turnOFF_1) {
+    SerialBT.println("LED 1 OFF"); 
+    Serial.println("LED 1 OFF"); 
+    digitalWrite(LEDpin_1, LOW); 
+  } else if (command == turnON_2) {
+    SerialBT.println("LED 2 ON"); 
+    Serial.println("LED 2 ON"); 
+    digitalWrite(LEDpin_2, HIGH); 
+  } else if (command == turnOFF_2) {
+    SerialBT.println("LED 2 OFF"); 
+    Serial.println("LED 2 OFF"); 
+    digitalWrite(LEDpin_2, LOW);
+  } else if (command == allON) {
+    SerialBT.println("ALL LEDs ON"); 
+    Serial.println("ALL LEDs ON"); 
+    digitalWrite(LEDpin_1, HIGH); 
+    digitalWrite(LEDpin_2, HIGH); 
+  } else if (command == allOFF)
+    SerialBT.println("ALL LEDs OFF"); 
+    Serial.println("ALL LEDs OFF"); 
+    digitalWrite(LEDpin_1, LOW); 
+    digitalWrite(LEDpin_2, LOW); 
+  } else {
+    SerialBT.println("Unknown command: " + String(command)); 
+    Serial.println("Unknown command: " + String(command)); 
+  }
+}
